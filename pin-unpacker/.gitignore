@@ -1,0 +1,7 @@
+test/
+x64/
+x86/
+IAT.json
+*.exe
+*.dll
+.vs/
