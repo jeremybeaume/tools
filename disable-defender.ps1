@@ -150,67 +150,68 @@ if($need_reboot) {
     $shortcut.Arguments = $cmdargs
     $shortcut.WorkingDirectory = "$(Split-Path -Path $PSScriptRoot -Parent)"
     $shortcut.Save()
-    exit
-}
-
-
-## STEP 4 : After reboot (we checked that everything was successfully disabled), make sure it doesn't come up again !
-
-
-if($IsSystem) {
-
-    # Configure the Defender registry to disable it (and the TamperProtection)
-    # editing HKLM:\SOFTWARE\Microsoft\Windows Defender\ requires to be SYSTEM
-
-    Write-Host "    [+] Disable all functionnalities with registry keys (SYSTEM privilege)"
-
-    # Cloud-delivered protection:
-    Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows Defender\Real-Time Protection" -Name SpyNetReporting -Value 0
-    # Automatic Sample submission
-    Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows Defender\Real-Time Protection" -Name SubmitSamplesConsent -Value 0
-    # Tamper protection
-    Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows Defender\Features" -Name TamperProtection -Value 4
-    
-    # Disable in registry
-    Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows Defender" -Name DisableAntiSpyware -Value 1
-    Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows Defender" -Name DisableAntiSpyware -Value 1
 
 } else {
-    Write-Host "    [W] (Optional) Cannot configure registry (not SYSTEM)"
-}
 
 
-if($MyInvocation.UnboundArguments.tolower().Contains("-delete")) {
-    
-    # Delete Defender files
+    ## STEP 4 : After reboot (we checked that everything was successfully disabled), make sure it doesn't come up again !
 
-    function Delete-Show-Error {
-        $path_exists = Test-Path $args[0]
-        if($path_exists) {
-            Remove-Item -Recurse -Force -Path $args[0]
-        } else {
-            Write-Host "    [i] $($args[0]) already deleted"
+
+    if($IsSystem) {
+
+        # Configure the Defender registry to disable it (and the TamperProtection)
+        # editing HKLM:\SOFTWARE\Microsoft\Windows Defender\ requires to be SYSTEM
+
+        Write-Host "    [+] Disable all functionnalities with registry keys (SYSTEM privilege)"
+
+        # Cloud-delivered protection:
+        Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows Defender\Real-Time Protection" -Name SpyNetReporting -Value 0
+        # Automatic Sample submission
+        Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows Defender\Real-Time Protection" -Name SubmitSamplesConsent -Value 0
+        # Tamper protection
+        Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows Defender\Features" -Name TamperProtection -Value 4
+        
+        # Disable in registry
+        Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows Defender" -Name DisableAntiSpyware -Value 1
+        Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows Defender" -Name DisableAntiSpyware -Value 1
+
+    } else {
+        Write-Host "    [W] (Optional) Cannot configure registry (not SYSTEM)"
+    }
+
+
+    if($MyInvocation.UnboundArguments -And $($MyInvocation.UnboundArguments.tolower().Contains("-delete"))) {
+        
+        # Delete Defender files
+
+        function Delete-Show-Error {
+            $path_exists = Test-Path $args[0]
+            if($path_exists) {
+                Remove-Item -Recurse -Force -Path $args[0]
+            } else {
+                Write-Host "    [i] $($args[0]) already deleted"
+            }
         }
-    }
 
-    Write-Host ""
-    Write-Host "[+] Delete Windows Defender (files, services, drivers)"
+        Write-Host ""
+        Write-Host "[+] Delete Windows Defender (files, services, drivers)"
 
-    # Delete files
-    Delete-Show-Error "C:\ProgramData\Windows\Windows Defender\"
-    Delete-Show-Error "C:\ProgramData\Windows\Windows Defender Advanced Threat Protection\"
+        # Delete files
+        Delete-Show-Error "C:\ProgramData\Windows\Windows Defender\"
+        Delete-Show-Error "C:\ProgramData\Windows\Windows Defender Advanced Threat Protection\"
 
-    # Delete drivers
-    Delete-Show-Error "C:\Windows\System32\drivers\wd\"
+        # Delete drivers
+        Delete-Show-Error "C:\Windows\System32\drivers\wd\"
 
-    # Delete service registry entries
-    foreach($svc in $svc_list) {
-        Delete-Show-Error "HKLM:\SYSTEM\CurrentControlSet\Services\$svc"
-    }
+        # Delete service registry entries
+        foreach($svc in $svc_list) {
+            Delete-Show-Error "HKLM:\SYSTEM\CurrentControlSet\Services\$svc"
+        }
 
-    # Delete drivers registry entries
-    foreach($drv in $drv_list) {
-        Delete-Show-Error "HKLM:\SYSTEM\CurrentControlSet\Services\$drv"
+        # Delete drivers registry entries
+        foreach($drv in $drv_list) {
+            Delete-Show-Error "HKLM:\SYSTEM\CurrentControlSet\Services\$drv"
+        }
     }
 }
 
