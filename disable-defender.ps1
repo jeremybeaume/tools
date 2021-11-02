@@ -1,6 +1,24 @@
 # Disable Windows Defender
 
 <#
+                           _               _ 
+ __      ____ _ _ __ _ __ (_)_ __   __ _  | |
+ \ \ /\ / / _` | '__| '_ \| | '_ \ / _` | | |
+  \ V  V / (_| | |  | | | | | | | | (_| | |_|
+   \_/\_/ \__,_|_|  |_| |_|_|_| |_|\__, | (_)
+                                   |___/     
+
+This script is NOT a disable/enable solution, I'm a malware analyst, I use it for malware analysis.
+It can completely DELETE Defender, and it is NOT REVERSIBLE (that's what I need).
+Once you have run it, you will no longer have any sort of antivirus protection, and WILL NOT BE ABLE to reactivate it.
+
+Think twice before running it, or read the blog post to understand and modify it to suit **your** needs.
+
+THIS IS NOT A JOKE.
+YOU HAVE BEEN WARNED.
+#>
+
+<#
 Options :
 
 -Delete : delete the defender related files (services, drivers, executables, ....) 
